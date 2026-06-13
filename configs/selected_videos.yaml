@@ -1,0 +1,30 @@
+selected_videos:
+  - video_id: "165895"
+    category: "Food Preparation"
+    primary_object: "Wooden Spoon"
+    reason: >
+      Selected because it contains clear object manipulation, hand-object
+      interaction, partial occlusion, repeated motion, and temporal continuity
+      challenges.
+
+  - video_id: "839878"
+    category: "Repair / Assembly"
+    primary_object: "Hairdryer"
+    reason: >
+      Selected because it contains tool-like object handling, viewpoint changes,
+      object re-entry, occlusion, and useful tracking challenges.
+
+strategy:
+  focus:
+    - frame sampling
+    - object detection
+    - temporal tracking
+    - prediction export
+    - visualization
+    - evaluation
+
+  notes: >
+    The pipeline will focus on producing inspectable perception outputs for the
+    two selected videos. The selected videos are expected to expose realistic
+    detection and tracking challenges such as occlusion, missed detections,
+    false positives, object re-entry, and track fragmentation.
