@@ -83,11 +83,15 @@ outputs/*.csv
 outputs/evaluation/*.csv
 outputs/evaluation/*.json
 
-# Visualization artifacts
-outputs/visualizations/*.mp4
-outputs/visualizations/*.avi
-outputs/visualizations/*.jpg
-outputs/visualizations/*.png
+# All generated outputs
+outputs/frames/
+outputs/detections/
+outputs/visualizations/
+outputs/evaluation/
+
+# Prediction exports
+outputs/*.jsonl
+outputs/*.csv
 
 # =====================================================
 # Models / Weights

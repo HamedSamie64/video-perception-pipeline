@@ -6,7 +6,7 @@ Build a small video perception pipeline capable of:
 
 - Video ingestion
 - Frame sampling
-- Object detection
+- Baseline object detection
 - Temporal tracking
 - Prediction export
 - Visualization
@@ -45,87 +45,33 @@ video-perception-pipeline/
 ├── configs/
 │   └── selected_videos.yaml
 ├── data/
-├── videos/
-│   ├── 165895.mp4
-│   ├── 767223.mp4
-│   ├── 839878.mp4
-│   └── 870855.mp4
-├── videos.json
-└── video_manifest.md
+│   ├── videos/
+│   │   ├── 165895.mp4
+│   │   ├── 767223.mp4
+│   │   ├── 839878.mp4
+│   │   └── 870855.mp4
+│   ├── videos.json
+│   └── video_manifest.md
 ├── docs/
 │   └── Computer Vision _ Video Perception Take-Home.pdf
 ├── outputs/
-│   ├── evaluation/
-│   └── visualizations/
+│   ├── frames/
+│   │   ├── 165895/
+│   │   └── 839878/
+│   ├── detections/
+│   │   ├── 165895/
+│   │   ├── 839878/
+│   │   └── summary.csv
+│   ├── visualizations/
+│   │   └── detections/
+│   │       ├── 165895/
+│   │       └── 839878/
+│   └── evaluation/
 ├── src/
+│   ├── download_videos.py
+│   ├── sample_frames.py
+│   └── run_baseline_detection.py
 ├── README.md
 ├── requirements.txt
 └── .gitignore
 ```
-
----
-
-## Metadata Files
-
-Dataset metadata:
-
-```text
-data/videos.json
-data/video_manifest.md
-```
-
-Task description:
-
-```text
-docs/Computer Vision _ Video Perception Take-Home.pdf
-```
-
----
-
-## Planned Pipeline
-
-```text
-Video
-  │
-  ▼
-Frame Sampling
-  │
-  ▼
-Object Detection
-  │
-  ▼
-Temporal Tracking
-  │
-  ▼
-Prediction Export (JSONL)
-  │
-  ▼
-Visualization
-  │
-  ▼
-Evaluation
-```
-
----
-
-## Planned Outputs
-
-```text
-outputs/
-├── frames/
-├── predictions.jsonl
-├── visualizations/
-└── evaluation/
-```
-
----
-
-## Technology Stack
-
-- Python 3.11+
-- OpenCV
-- NumPy
-- Ultralytics YOLO
-- ByteTrack
-- Pandas
-- Matplotlib
