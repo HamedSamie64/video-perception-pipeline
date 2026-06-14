@@ -30,6 +30,10 @@ MODEL_NAME = "yolov8n.pt"
 # Lower values detect more objects but add more false positives.
 CONFIDENCE_THRESHOLD = 0.25
 
+# Minimum bounding-box area in pixels.
+# Very small boxes are often unstable detections on clutter or partial objects.
+MIN_BOX_AREA = 10000
+
 
 def get_video_frame_dirs():
     """
@@ -91,6 +95,16 @@ def run_detection_on_frame(model, frame_path, output_txt_path, output_image_path
             confidence = float(box.conf[0])
 
             x1, y1, x2, y2 = box.xyxy[0].tolist()
+
+            # Detection filtering:
+            # Remove very small boxes because they are often noisy,
+            # hard to review visually, and can create unstable tracks.
+            box_width = x2 - x1
+            box_height = y2 - y1
+            box_area = box_width * box_height
+
+            if box_area < MIN_BOX_AREA:
+                continue
 
             detections.append({
                 "class_id": class_id,
