@@ -18,8 +18,6 @@ The goal is to process egocentric task videos and generate inspectable perceptio
 
 # Selected Videos and Strategy
 
-For the core implementation, this project focuses on two videos:
-
 | Video ID | Category          | Primary Object | Reason                                                                                                                     |
 | -------- | ----------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | 165895   | Food Preparation  | Wooden Spoon   | Good manipulation sequence with hands, tool usage, occlusion, and repeated object motion.                                  |
@@ -48,37 +46,26 @@ video-perception-pipeline/
 │   └── selected_videos.yaml
 ├── data/
 │   ├── videos/
-│   │   ├── 165895.mp4
-│   │   ├── 767223.mp4
-│   │   ├── 839878.mp4
-│   │   └── 870855.mp4
 │   ├── videos.json
 │   └── video_manifest.md
 ├── docs/
-│   └── Computer Vision _ Video Perception Take-Home.pdf
 ├── outputs/
 │   ├── frames/
-│   │   ├── 165895/
-│   │   └── 839878/
 │   ├── detections/
-│   │   ├── 165895/
-│   │   ├── 839878/
-│   │   └── summary.csv
 │   ├── tracks/
-│   │   ├── tracked_detections.csv
-│   │   └── track_summary.csv
 │   ├── predictions.jsonl
 │   ├── visualizations/
-│   │   └── detections/
-│   │       ├── 165895/
-│   │       └── 839878/
+│   │   ├── detections/
+│   │   └── predictions/
+│   │       └── clips/
 │   └── evaluation/
 ├── src/
 │   ├── download_videos.py
 │   ├── sample_frames.py
 │   ├── run_baseline_detection.py
 │   ├── run_tracking.py
-│   └── export_predictions_jsonl.py
+│   ├── export_predictions_jsonl.py
+│   └── visualize_predictions.py
 ├── README.md
 ├── requirements.txt
 └── .gitignore
@@ -88,17 +75,13 @@ video-perception-pipeline/
 
 # Pipeline Overview
 
-## Step 1 — Video Download and Validation
-
-Download the videos defined in `videos.json` and verify that OpenCV can open them correctly.
-
-Run:
+## Video Download and Validation
 
 ```bash
 python3 src/download_videos.py
 ```
 
-Validation output includes:
+Validates:
 
 ```text
 video_id
@@ -110,63 +93,26 @@ duration
 
 ---
 
-## Step 2 — Frame Sampling
-
-Sample frames from the selected videos at a fixed interval.
-
-Current configuration:
-
-```python
-SAMPLE_EVERY_SECONDS = 1.0
-```
-
-Frames are saved under:
-
-```text
-outputs/frames/<video_id>/
-```
-
-Example:
-
-```text
-outputs/frames/165895/frame_000120.jpg
-outputs/frames/839878/frame_000450.jpg
-```
-
-Run:
+## Frame Sampling
 
 ```bash
 python3 src/sample_frames.py
 ```
 
+Frames are stored under:
+
+```text
+outputs/frames/<video_id>/
+```
+
 ---
 
-## Step 3 — Baseline Object Detection
-
-Object detection is performed using Ultralytics YOLOv8.
+## Baseline Object Detection
 
 Model:
 
 ```text
 yolov8n.pt
-```
-
-Detected objects are exported as:
-
-```text
-outputs/detections/<video_id>/frame_xxxxxx.txt
-```
-
-Annotated images are exported as:
-
-```text
-outputs/visualizations/detections/<video_id>/
-```
-
-A global detection summary is generated:
-
-```text
-outputs/detections/summary.csv
 ```
 
 Run:
@@ -175,54 +121,16 @@ Run:
 python3 src/run_baseline_detection.py
 ```
 
+Outputs:
+
+```text
+outputs/detections/
+outputs/visualizations/detections/
+```
+
 ---
 
-## Step 4 — Temporal Association / Tracking
-
-After running baseline detection, detections are associated across sampled frames using a simple IoU-based tracker.
-
-The tracker reads:
-
-```text
-outputs/detections/summary.csv
-```
-
-and writes:
-
-```text
-outputs/tracks/tracked_detections.csv
-outputs/tracks/track_summary.csv
-```
-
-Each detection receives:
-
-```text
-track_id
-track_age
-is_new_track
-matched_iou
-missed_frames_before_match
-```
-
-Each completed track contains:
-
-```text
-track_id
-class_name
-start_frame
-end_frame
-duration_frames
-total_detections
-```
-
-The tracker performs:
-
-1. Detection matching using IoU
-2. Class-consistent association
-3. Track creation
-4. Track continuation
-5. Short occlusion handling
-6. Track termination
+## Temporal Tracking
 
 Run:
 
@@ -230,27 +138,39 @@ Run:
 python3 src/run_tracking.py
 ```
 
-This step introduces temporal reasoning by converting independent frame detections into persistent object tracks.
-
----
-
-## Step 5 — Prediction Export
-
-Tracked detections are exported into the required JSONL prediction format.
-
-The exporter reads:
+Outputs:
 
 ```text
 outputs/tracks/tracked_detections.csv
+outputs/tracks/track_summary.csv
 ```
 
-and writes:
+Features:
+
+- IoU-based association
+- Class-consistent matching
+- Track creation
+- Track continuation
+- Occlusion handling
+- Track termination
+
+---
+
+## Prediction Export
+
+Run:
+
+```bash
+python3 src/export_predictions_jsonl.py
+```
+
+Output:
 
 ```text
 outputs/predictions.jsonl
 ```
 
-Each line contains one prediction object:
+Each prediction contains:
 
 ```json
 {
@@ -266,13 +186,44 @@ Each line contains one prediction object:
 }
 ```
 
+---
+
+## Prediction Visualization
+
+Tracked predictions are rendered back onto sampled frames for inspection.
+
 Run:
 
 ```bash
-python3 src/export_predictions_jsonl.py
+python3 src/visualize_predictions.py
 ```
 
-This file is one of the required project deliverables.
+Reads:
+
+```text
+outputs/frames/<video_id>/
+outputs/tracks/tracked_detections.csv
+```
+
+Writes:
+
+```text
+outputs/visualizations/predictions/<video_id>/
+outputs/visualizations/predictions/clips/
+```
+
+Each visualization includes:
+
+```text
+bounding box
+class label
+confidence score
+track_id
+new track marker
+possible re-entry marker
+```
+
+Short MP4 clips are generated to inspect temporal continuity and track stability.
 
 ---
 
@@ -314,22 +265,6 @@ track_summary.csv
 outputs/predictions.jsonl
 ```
 
-Contains one JSON object per predicted detection.
-
-Each prediction includes:
-
-```text
-video_id
-frame_index
-timestamp_sec
-class_label
-box
-track_id
-confidence
-method
-notes
-```
-
 ---
 
 ## Visualization Outputs
@@ -338,10 +273,27 @@ notes
 outputs/visualizations/detections/
 ```
 
+Contains YOLO detection-only annotated images.
+
+```text
+outputs/visualizations/predictions/
+```
+
 Contains:
 
 ```text
-annotated detection images
+bounding boxes
+class labels
+confidence scores
+track IDs
+new track markers
+possible re-entry markers
+```
+
+Short clips:
+
+```text
+outputs/visualizations/predictions/clips/
 ```
 
 ---
@@ -365,13 +317,9 @@ reviewer feedback
 
 # Dependencies
 
-Install:
-
 ```bash
 pip install -r requirements.txt
 ```
-
-Current dependencies:
 
 ```text
 opencv-python
@@ -387,8 +335,6 @@ ultralytics
 
 # Full Pipeline Execution
 
-Run the complete pipeline in order:
-
 ```bash
 python3 src/download_videos.py
 
@@ -399,4 +345,6 @@ python3 src/run_baseline_detection.py
 python3 src/run_tracking.py
 
 python3 src/export_predictions_jsonl.py
+
+python3 src/visualize_predictions.py
 ```
