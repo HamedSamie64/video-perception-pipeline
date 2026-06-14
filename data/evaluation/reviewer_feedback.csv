@@ -1,0 +1,11 @@
+feedback_id,video_id,frame_name,object_label,issue_type,severity,reviewer_comment,suggested_action
+FB001,165895,frame_000030.jpg,wooden spoon,missed_detection,high,Target object is not consistently detected when only partially visible.,Improve handling of partial object visibility.
+FB002,165895,frame_000090.jpg,wooden spoon,missed_detection,high,Detection performance decreases during rapid object manipulation.,Increase sampling density around active manipulation periods.
+FB003,165895,frame_000150.jpg,wooden spoon,occlusion,medium,Object visibility changes appear to affect detection continuity.,Use temporal information to maintain object hypotheses through short visibility gaps.
+FB004,165895,frame_000210.jpg,wooden spoon,object_ambiguity,medium,Target object boundaries are difficult to distinguish from nearby hands and tools.,Consider segmentation-based approaches or reviewer-assisted correction.
+FB005,165895,frame_000300.jpg,wooden spoon,tracking_stability,medium,Tracking continuity appears unstable after temporary object disappearance.,Allow longer track persistence before creating a new track.
+FB006,839878,frame_000030.jpg,hairdryer,partial_visibility,high,Detection confidence appears sensitive to partial object visibility.,Incorporate temporal evidence from neighboring frames.
+FB007,839878,frame_000120.jpg,hairdryer,viewpoint_change,high,Object appearance changes may reduce tracking consistency across viewpoints.,Improve association logic for appearance changes.
+FB008,839878,frame_000240.jpg,hairdryer,missed_detection,high,Target object is occasionally missed despite remaining relevant to the task activity.,Add task-specific object handling or targeted review triggers.
+FB009,839878,frame_000360.jpg,hairdryer,false_positive_risk,medium,Potential non-target detections may require additional filtering during review.,Apply class filtering or post-processing validation.
+FB010,839878,frame_000480.jpg,hairdryer,id_consistency,medium,Object identity may not remain stable after temporary detection gaps.,Increase tolerance for short detection interruptions.

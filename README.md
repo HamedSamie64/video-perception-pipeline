@@ -47,7 +47,8 @@ video-perception-pipeline/
 ├── data/
 │   ├── videos/
 │   ├── evaluation/
-│   │   └── manual_labels.csv
+│   │   ├── manual_labels.csv
+│   │   └── reviewer_feedback.csv
 │   ├── videos.json
 │   └── video_manifest.md
 ├── docs/
@@ -238,6 +239,46 @@ ID switches
 
 ---
 
+## Simulated Reviewer Feedback
+
+Reviewer feedback is stored in:
+
+```text
+data/evaluation/reviewer_feedback.csv
+```
+
+This file contains simulated human-review comments describing common perception and tracking failure modes observed during inspection of prediction outputs.
+
+Example feedback categories:
+
+```text
+missed detections
+partial visibility
+occlusions
+tracking instability
+viewpoint changes
+ID consistency issues
+potential false positives
+```
+
+The feedback is not used as ground-truth annotations. Instead, it represents observations that a human reviewer might provide after inspecting visualizations and evaluation results.
+
+The purpose of this step is to demonstrate a human-in-the-loop review workflow:
+
+```text
+predictions
+    ↓
+visual inspection
+    ↓
+reviewer feedback
+    ↓
+pipeline improvement
+```
+
+The reviewer feedback is used to guide the bounded improvement step that follows.
+
+---
+
 # Outputs
 
 ## Detection Outputs
@@ -279,6 +320,13 @@ metrics_summary.csv
 tracking_metrics.csv
 ```
 
+Human review artifacts:
+
+```text
+data/evaluation/manual_labels.csv
+data/evaluation/reviewer_feedback.csv
+```
+
 ---
 
 # Dependencies
@@ -307,4 +355,8 @@ python3 src/visualize_predictions.py
 python3 src/prepare_manual_evaluation.py
 
 python3 src/evaluate_predictions.py
+
+# Human review artifacts
+# data/evaluation/manual_labels.csv
+# data/evaluation/reviewer_feedback.csv
 ```
