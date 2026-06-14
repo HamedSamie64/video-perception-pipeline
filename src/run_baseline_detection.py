@@ -9,7 +9,7 @@ from ultralytics import YOLO
 # video-perception-pipeline/
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-# Input frames produced by Step 5
+# Input frames
 FRAMES_DIR = REPO_ROOT / "outputs" / "frames"
 
 # Text detection outputs

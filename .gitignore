@@ -72,26 +72,27 @@ data/videos/
 # Generated Outputs
 # =====================================================
 
+# Sampled frames
 outputs/frames/
-outputs/videos/
 
-# Prediction exports
-outputs/*.jsonl
-outputs/*.csv
+# Detection results
+outputs/detections/
+
+# Tracking results
+outputs/tracks/
+
+# Visualization artifacts
+outputs/visualizations/
 
 # Evaluation artifacts
-outputs/evaluation/*.csv
-outputs/evaluation/*.json
-
-# All generated outputs
-outputs/frames/
-outputs/detections/
-outputs/visualizations/
 outputs/evaluation/
 
 # Prediction exports
 outputs/*.jsonl
 outputs/*.csv
+
+# Generated videos
+outputs/videos/
 
 # =====================================================
 # Models / Weights
