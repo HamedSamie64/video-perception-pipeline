@@ -1,4 +1,5 @@
 from pathlib import Path
+import csv
 import cv2
 import yaml
 
@@ -14,6 +15,10 @@ VIDEO_DIR = REPO_ROOT / "data" / "videos"
 
 # Directory where sampled frames will be written
 OUTPUT_DIR = REPO_ROOT / "outputs" / "frames"
+
+# Metadata file describing every sampled frame.
+# This is the source of truth for timestamps.
+FRAME_METADATA_CSV = OUTPUT_DIR / "frame_metadata.csv"
 
 # Sampling frequency:
 # 1.0 means save one frame every second
@@ -89,6 +94,7 @@ def sample_video_frames(video_id):
 
     frame_index = 0
     saved_count = 0
+    frame_metadata_rows = []
 
     # Read frames sequentially
     while True:
@@ -99,18 +105,36 @@ def sample_video_frames(video_id):
         if not success:
             break
 
-        # Save one frame every frame_interval
+        # Save one frame every frame_interval.
+        # frame_index is the ORIGINAL frame index in the source video.
         if frame_index % frame_interval == 0:
+
+            frame_name = f"frame_{frame_index:06d}.jpg"
 
             output_path = (
                 output_dir /
-                f"frame_{frame_index:06d}.jpg"
+                frame_name
             )
 
             cv2.imwrite(
                 str(output_path),
                 frame
             )
+
+            # Correct timestamp:
+            # original frame index divided by original video FPS.
+            timestamp_sec = frame_index / fps
+
+            frame_metadata_rows.append({
+                "video_id": video_id,
+                "frame_name": frame_name,
+                "original_frame_index": frame_index,
+                "sampled_frame_number": saved_count,
+                "timestamp_sec": round(timestamp_sec, 4),
+                "fps": round(fps, 4),
+                "frame_interval": frame_interval,
+                "sample_every_seconds": SAMPLE_EVERY_SECONDS,
+            })
 
             saved_count += 1
 
@@ -128,6 +152,7 @@ def sample_video_frames(video_id):
         "duration_sec": round(duration_sec, 2),
         "saved_frames": saved_count,
         "output_dir": str(output_dir),
+        "frame_metadata_rows": frame_metadata_rows,
     }
 
 
@@ -143,6 +168,7 @@ def main():
     selected_video_ids = load_selected_video_ids()
 
     results = []
+    all_frame_metadata_rows = []
 
     for video_id in selected_video_ids:
 
@@ -153,6 +179,48 @@ def main():
         result = sample_video_frames(video_id)
 
         results.append(result)
+
+        # Collect metadata generated for this video.
+        all_frame_metadata_rows.extend(
+            result["frame_metadata_rows"]
+        )
+
+    # Save one global metadata CSV for all sampled frames.
+    # Downstream steps use this file to get correct timestamps.
+    FRAME_METADATA_CSV.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    with open(
+        FRAME_METADATA_CSV,
+        "w",
+        newline="",
+        encoding="utf-8",
+    ) as f:
+
+        fieldnames = [
+            "video_id",
+            "frame_name",
+            "original_frame_index",
+            "sampled_frame_number",
+            "timestamp_sec",
+            "fps",
+            "frame_interval",
+            "sample_every_seconds",
+        ]
+
+        writer = csv.DictWriter(
+            f,
+            fieldnames=fieldnames,
+        )
+
+        writer.writeheader()
+        writer.writerows(all_frame_metadata_rows)
+
+    print(
+        f"\nFrame metadata saved to: {FRAME_METADATA_CSV}"
+    )
 
     print(
         "\nvideo_id,"
